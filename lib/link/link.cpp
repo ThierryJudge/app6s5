@@ -2,7 +2,7 @@
 #include "trame.h"
 
 
-void create_trame(char content[73], int length)
+void create_trame(char content[MESSAGE_MAX_LEN], int length)
 {
     trame_t trame; 
     trame.message[0] = 0x55; //preambule
@@ -17,7 +17,7 @@ void create_trame(char content[73], int length)
 
     trame.message[length+4] =  crc & 0xFF; //CRC
     trame.message[length+5] =  (crc >> 8) & 0xFF; //CRC
-    printf("CRC: 0x%02x 0x%02x\r\n", crc & 0xFF, (crc >> 8) & 0xFF);
+    //printf("CRC: 0x%02x 0x%02x\r\n", crc & 0xFF, (crc >> 8) & 0xFF);
     trame.message[length+6] = 0x7E; //end
 
     trame.length = length + 7;

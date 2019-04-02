@@ -7,7 +7,7 @@
 #include "trame.h"
 #include "manchester.h"
 
-#define BIT_PERIOD 0.001
+#define BIT_PERIOD 200000
 
 extern Thread write_th;
 

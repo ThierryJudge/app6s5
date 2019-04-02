@@ -4,7 +4,9 @@
 #include "physic.h"
 #include "crc.h"
 
-void create_trame(char[73], int);
+#define MESSAGE_MAX_LEN 73
+
+void create_trame(char[MESSAGE_MAX_LEN], int);
 
 
 #endif

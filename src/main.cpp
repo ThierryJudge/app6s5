@@ -16,6 +16,6 @@ int main()
     
     send_messages("ABC", 3);
     led = !led;
-    wait(5);
+    wait(10);
   }
 }

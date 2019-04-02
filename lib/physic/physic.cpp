@@ -2,7 +2,8 @@
 #include "mbed.h"
 #include "manchester.h"
 
-DigitalOut tx(LED4);
+DigitalOut tx(p20);
+DigitalOut tx_led(LED4);
 DigitalOut led3(LED3);
 
 Ticker sendBit_tick;
@@ -10,16 +11,16 @@ Thread write_th;
 
 Mail<trame_t, 10> messages_to_send;
 
-
 void
 write_message_routine(void)
 {
   write();
 }
 
-void start_write()
+void 
+start_write()
 {
-    sendBit_tick.attach(bit_ready_interupt, BIT_PERIOD);
+    sendBit_tick.attach_us(bit_ready_interupt, BIT_PERIOD);
     write_th.start(write_message_routine);
 }
 
@@ -31,7 +32,8 @@ bit_ready_interupt(void)
 }
 
 
-void send_message_to_phy(trame_t &_trame)
+void 
+send_message_to_phy(trame_t &_trame)
 {
     trame_t *trame = messages_to_send.alloc();
     if (trame != NULL) {
@@ -40,15 +42,6 @@ void send_message_to_phy(trame_t &_trame)
         {
             trame->message[i] = _trame.message[i];
         }
-        /*
-        printf("message length: %d\r\n", trame->length);
-            
-        for(int i = 0; i < trame->length; i++)
-        {
-            printf("0x%02x ", trame->message[i]);
-        }
-        printf("\r\n");
-        */
 
         messages_to_send.put(trame);
     } 
@@ -80,8 +73,8 @@ write(void)
                 printf("0x%02x ", message.message[i]);
                 char res[2];
                 to_manchester(res, message.message[i]);
-                full_message[2*i] = res[0];
-                full_message[2*i + 1] = res[1];
+                full_message[i*2] = res[1];
+                full_message[i*2 + 1] = res[0];
             }
 
             printf("\r\nfull message \r\n");
@@ -94,22 +87,26 @@ write(void)
 
             for(int i = 0; i < message.length * 2; i++)
             {
-                int j = 0;
-                while(j < 8)
+                int j = 7;
+                while(j >= 0)
                 {
                     Thread::signal_wait(0x1);
                     tx = (full_message[i] >> j) & 0x01;
-                    printf("tick: %d\r\n", (full_message[i] >> j) & 0x01);
-                    j++;                    
+                    tx_led = (full_message[i] >> j) & 0x01;
+                    //printf("tick: %d\r\n", (full_message[i] >> j) & 0x01);
+                    j--;               
                 }
+                //printf("--------");
             }
 
             //RESET tx to 0 after message
             Thread::signal_wait(0x1);
             tx = 0;
+            tx_led = 0;
 
             printf("Message done\r\n");
             messages_to_send.free(tmp);
+            Thread::wait(3500);
         }
     }
 }
